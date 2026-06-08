@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeautifulPolly - Agendamento</title>
+    <link rel="stylesheet" href="manicure.css">
+</head>
+<body>
+    <header>
+        <h1>   BeautifulPolly    🦋</h1>
+    </header>
+
+    <main class="containers">
+        <div class="container-servico" id="secao-manicure">
+            <h2>  💅 Manicure e Pedicure  💅</h2>
+            <div class="form-group">
+                <label for="servico-unha">Selecione o serviço:</label>
+                <select id="servico-unha">
+                    <option value="" disabled selected>Escolha um serviço...</option>
+                    <option value="decorada">Unha Decorada - R$ 80,00</option>
+                    <option value="francesinha">Pé e Mão simples - R$ 60,00</option>
+                    <option value="pedicure">Pé - R$ 40,00</option>
+                    <option value="mao">Mão - R$ 30,00</option>
+                    <option value="gel">Unha em Gel - R$ 100,00</option>
+                    <option value="fibra">Unha de Fibra - R$ 120,00</option>
+                    <option value="acrilico">Unha de Acrílico - R$ 150,00</option>
+                </select>
+            </div>
+            
+            <div id="agendamento-unha" class="agendamento-container hidden">
+                <div class="form-group">
+                    <label for="data-unha">Selecione a Data:</label>
+                    <input type="date" id="data-unha">
+                </div>
+                <div id="horarios-unha" class="horarios-grid">
+                    </div>
+                <button id="btn-agendar-unha" class="btn-primary hidden">Confirmar Agendamento</button>
+            </div>
+
+            <section class="galeria-servicos">
+                <h3>Confira nossa galeria:</h3>
+                <div class="carousel-container" id="carousel-unhas">
+                    <button class="carousel-btn prev" aria-label="Imagem anterior">&#10094;</button>
+                    
+                    <div class="carousel-slide-wrapper">
+                        <div class="carousel-slides">
+                            <div class="slide"><img src="https://i.pinimg.com/originals/7d/c9/d7/7dc9d7f2c3acbea8d599c0aea354a5a6.jpg" alt="Unha decorada clássica"><div class="nome-servico">Unha Decorada</div>
+                           </div>
+                            <div class="slide"><img src="https://www.dicasdemulher.com.br/wp-content/uploads/2019/05/modelos-de-unhas-46.jpg" alt="Unha em gel natural"><div class="nome-servico">Unha em Gel</div>
+                           </div>
+                            <div class="slide"><img src="https://d33wubrfki0l68.cloudfront.net/bc0de794ed2656f212f29f119ae03c57b49b279e/472db/static/b194f6e69cbf21151286e770e3fdc54b/b5cea/unha-fibra-de-vidro-glitter.png" alt="Unha de fibra com glitter"><div class="nome-servico">Unha de Fibra</div>
+                            </div>
+                            <div class="slide"><img src="https://i.pinimg.com/originals/df/40/e2/df40e2580cff6f62153ab7716a96866e.jpg" alt="Unha acrílica moldada"><div class="nome-servico">Unha de Acrílico</div>
+                            </div>
+                            <div class="slide"><img src="https://unhadecorada.site/wp-content/uploads/2021/01/unhas-p%C3%A9-e-m%C3%A3o-cores-diferentes-8-768x768.jpg" alt="Pé e mão combinando"><div class="nome-servico">Pé e Mão</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="carousel-btn next" aria-label="Próxima imagem">&#10095;</button>
+                </div>
+            </section>
+        </div>
+
+        <div class="container-servico" id="secao-sobrancelha">
+            <h2>Sobrancelha</h2>
+            <div class="form-group">
+                <label for="servico-sobrancelha">Selecione o serviço:</label>
+                <select id="servico-sobrancelha">
+                    <option value="" disabled selected>Escolha um serviço...</option>
+                    <option value="design">Design de Sobrancelha - R$ 100,00</option>
+                    <option value="henna">Henna - R$ 60,00</option>
+                    <option value="microblading">Microblading - R$ 150,00</option>
+                    <option value="sobrancelha-fio-a-fio">Sobrancelha Fio a Fio - R$ 150,00</option>
+                </select>
+            </div>
+
+            <div id="agendamento-sobrancelha" class="agendamento-container hidden">
+                <div class="form-group">
+                    <label for="data-sobrancelha">Selecione a Data:</label>
+                    <input type="date" id="data-sobrancelha">
+                </div>
+                <div id="horarios-sobrancelha" class="horarios-grid"></div>
+                <button id="btn-agendar-sobrancelha" class="btn-primary hidden">Confirmar Agendamento</button>
+            </div>
+
+            <section class="galeria-servicos">
+                <h3>Confira nossa galeria:</h3>
+                <div class="carousel-container" id="carousel-sobrancelhas">
+                    <button class="carousel-btn prev">&#10094;</button>
+                    <div class="carousel-slide-wrapper">
+                        <div class="carousel-slides">
+                            <div class="slide"><img src="https://i0.wp.com/priflor.com/wp-content/uploads/2023/02/esteticista-trabalhando-nas-sobrancelhas-de-uma-cliente-scaled.jpg?resize=2048%2C1363&ssl=1" alt="Procedimento de Design"><div class="nome-servico">Procedimento de Design</div></div>
+                            <div class="slide"><img src="https://th.bing.com/th/id/R.eb1fa3112455b542e28cdff7898caa32?rik=h6uIV9yt2qInuQ&pid=ImgRaw&r=0" alt="Sobrancelha com Henna"><div class="nome-servico">Sobrancelha com Henna</div></div>
+                            <div class="slide"><img src="https://dermage.pt/wp-content/uploads/microblading-sobrancelhas.jpg" alt="Resultado Microblading"><div class="nome-servico">Microblading</div></div>
+                            <div class="slide"><img src="https://casaeconstrucao.org/wp-content/uploads/2021/06/15-resultado-de-sobrancelha-fio-a-fio.jpg" alt="Sobrancelha Fio a Fio"><div class="nome-servico">Sobrancelha Fio a Fio</div></div>
+                        </div>
+                    </div>
+                    <button class="carousel-btn next">&#10095;</button>
+                </div>
+            </section>
+        </div>
+    </main>
+   <!-- ...Rodapé final do conteúdo das seções ... -->
+
+<footer>
+    
+    </div>
+    <div class="social-footer">
+        <p>📍 Av. Bonita, 123 - Mauá/SP</p>
+        <p><img src="https://imagepng.org/wp-content/uploads/2017/08/WhatsApp-icone.png" alt="WhatsApp" style="width: 20px; height: 20px;"> WhatsApp: <a href="https://wa.me/5511999999999" target="_blank"> (11) 99999-9999</a></p>
+        <div class="icons">
+          <img src="https://png.pngtree.com/png-clipart/20221019/original/pngtree-instagram-icon-png-image_8704817.png" alt="Instagram" style="width: 20px; height: 20px;"> <a href="#"> Instagram</a> | 
+          <img src="https://static.vecteezy.com/system/resources/previews/018/930/698/non_2x/facebook-logo-facebook-icon-transparent-free-png.png" alt="Facebook" style="width: 35px; height: 35px;"> <a href="#"> Facebook</a>
+        </div>
+</footer>
+<script src="manicure.js"></script>
+</body>
+</html>

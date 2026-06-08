@@ -1,0 +1,266 @@
+/* --- RESET E ESTILOS BÁSICOS --- */
+:root {
+    --primary-color: #ff69b4; /* Rosa Polly */
+    --secondary-color: #333;
+    --bg-color: #f9f9f9;
+    --white: #fff;
+    --border-radius: 8px;
+    --shadow: 0 4px 6px rgba(0,0,0,0.1);
+    --transition: all 0.3s ease;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-radius;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--secondary-color);
+    line-height: 1.6;
+}
+
+header {
+    background-color: var(--white);
+    padding: 20px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+}
+
+header h1 {
+    color: var(--primary-color);
+    font-size: 2.5rem;
+}
+
+h2 {
+    margin-bottom: 15px;
+    color: var(--secondary-color);
+    border-bottom: 2px solid var(--primary-color);
+    display: inline-block;
+    padding-bottom: 5px;
+}
+
+h3 {
+    margin: 20px 0 10px;
+    font-size: 1.2rem;
+}
+
+/* --- LAYOUT RESPONSIVO --- */
+.containers {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    display: flex;
+    flex-wrap: wrap; /* Importante para responsividade */
+    gap: 30px;
+    justify-content: center;
+}
+
+.container-servico {
+    background: var(--white);
+    padding: 25px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    flex: 1; /* Cresce igualmente */
+    min-width: 320px; /* Não fica menor que isso */
+    max-width: 550px; /* Não fica maior que isso */
+}
+
+/* --- FORMULÁRIOS E AGENDAMENTO --- */
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+select, input[type="date"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+select:focus, input[type="date"]:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.2);
+}
+
+.hidden {
+    display: none !important;
+}
+
+.agendamento-container {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.horarios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.hora-btn {
+    background-color: var(--white);
+    border: 2px solid #ddd;
+    padding: 10px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    text-align: center;
+    transition: var(--transition);
+    font-weight: 500;
+}
+
+.hora-btn:hover:not(.disabled) {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.hora-btn.selected {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--white);
+}
+
+.hora-btn.disabled {
+    background-color: #eee;
+    color: #aaa;
+    cursor: not-allowed;
+    border-color: #eee;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: var(--white);
+    border: none;
+    padding: 12px 24px;
+    border-radius: var(--border-radius);
+    font-size: 1.1rem;
+    cursor: pointer;
+    width: 100%;
+    transition: var(--transition);
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    background-color: #ff4da6;
+    transform: translateY(-2px);
+}
+
+/* --- ESTILOS DO CARROSSEL (RESOLVE SEU PEDIDO) --- */
+.galeria-servicos {
+    display: block !important; 
+    margin-top: 30px;
+    border: 1px solid #ffe4e1; /* Um rosa claro suave */
+    padding: 10px;
+    border-radius: 15px;
+}
+
+.carousel-container {
+    position: relative;
+    width: 100%;
+    max-width: 450px; /* Limita o tamanho máximo do carrossel */
+    margin: 0 auto; /* Centraliza */
+    overflow: hidden; /* Esconde as imagens fora do wrapper */
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+}
+
+.carousel-slide-wrapper {
+    width: 100%;
+    /* Define uma proporção fixa para o container (ex: 1:1 quadrado) */
+    /* Isso garante que o container sempre tenha espaço para a imagem inteira */
+    position: relative;
+    padding-bottom: 100%; /* Proporção 1:1 (Altura = Largura) */
+}
+
+.carousel-slides {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex; /* Coloca os slides lado a lado */
+    transition: transform 0.5s ease-in-out; /* Animação do deslize */
+}
+
+
+.slide {
+    flex: 0 0 100%;
+    display: flex;
+    flex-direction: column; /* Nome abaixo da imagem */
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.slide img {
+    max-width: 80%;
+    height: 300px; /* Altura fixa para uniformidade */
+    object-fit: cover;
+    border-radius: 10px;
+}
+.nome-servico {
+    margin-top: 10px;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+/* Botões de Navegação */
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(255, 255, 255, 0.7);
+    color: var(--secondary-color);
+    border: none;
+    font-size: 1.5rem;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 50%;
+    z-index: 10;
+    transition: var(--transition);
+}
+
+.carousel-btn:hover {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+.carousel-btn.prev { left: 10px; }
+.carousel-btn.next { right: 10px; }
+footer {
+    background: #333;
+    color: #fff;
+    padding: 30px;
+    text-align: center;
+    margin-top: 50px;
+}
+
+.social-footer a {
+    color: #ff69b4;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.icons {
+    margin-top: 10px;
+    font-size: 1.2rem;
+}
+
+/* Esconder galerias por padrão */
+.galeria-servicos {
+    display: none;
+}
