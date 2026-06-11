@@ -12,6 +12,7 @@
     </header>
 
     <main class="containers">
+        <!-- Seleção de serviços de manicure e pedicure -->
         <div class="container-servico" id="secao-manicure">
             <h2>  💅 Manicure e Pedicure  💅</h2>
             <div class="form-group">
@@ -37,7 +38,20 @@
                     </div>
                 <button id="btn-agendar-unha" class="btn-primary hidden">Confirmar Agendamento</button>
             </div>
-
+            <!-- Depois que confirmar o agendamento aparecerá um modal para coletar os dados do cliente -->
+            <div id="modal-agendamento" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; justify-content:center; align-items:center;">
+    <div style="background:#fff; padding:30px; border-radius:10px; width:300px; position:relative;">
+        <span onclick="this.parentElement.parentElement.style.display='none'" style="position:absolute; right:15px; top:5px; cursor:pointer; font-size:25px;">&times;</span>
+        <h2>Dados do Cliente</h2>
+        <form id="form-coleta-dados">
+            <input type="text" id="cli-nome" placeholder="Nome Completo" required style="width:100%; margin-bottom:10px;">
+            <input type="tel" id="cli-tel" placeholder="Telefone com DD(00)" required style="width:100%; margin-bottom:10px;">
+            <input type="email" id="cli-email" placeholder="E-mail" required style="width:100%; margin-bottom:10px;">
+            <button type="submit" class="btn-primary">Confirmar</button>
+        </form>
+    </div>
+</div>
+<!-- Container com as imagens dos serviços prestados referente a manicure e pedicure -->
             <section class="galeria-servicos">
                 <h3>Confira nossa galeria:</h3>
                 <div class="carousel-container" id="carousel-unhas">
@@ -62,7 +76,7 @@
                 </div>
             </section>
         </div>
-
+<!-- Seção de sobrancelha -->
         <div class="container-servico" id="secao-sobrancelha">
             <h2>Sobrancelha</h2>
             <div class="form-group">
@@ -84,7 +98,7 @@
                 <div id="horarios-sobrancelha" class="horarios-grid"></div>
                 <button id="btn-agendar-sobrancelha" class="btn-primary hidden">Confirmar Agendamento</button>
             </div>
-
+<!-- Container com as imagens dos serviços prestados referente a design de sombrancelhas -->
             <section class="galeria-servicos">
                 <h3>Confira nossa galeria:</h3>
                 <div class="carousel-container" id="carousel-sobrancelhas">

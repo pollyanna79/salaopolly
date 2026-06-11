@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const slides = container.querySelectorAll('.slide');
         const nextBtn = container.querySelector('.next');
         const prevBtn = container.querySelector('.prev');
+        let agendamentoPendente = {};
         
         let indexAtual = 0;
         
@@ -31,7 +32,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
         return { mover }; // Retorna a função para o select controlar
     }
+        
+    // Lógica do Formulário de Coleta
+    document.getElementById('form-coleta-dados').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const dados = {
+            nome: document.getElementById('cli-nome').value,
+            tel: document.getElementById('cli-tel').value,
+            email: document.getElementById('cli-email').value,
+            ...agendamentoPendente
+        };
 
+        const response = await fetch('agendar.php', {
+            method: 'POST',
+            body: JSON.stringify(dados)
+        });
+
+        const res = await response.json();
+        if(res.status === "sucesso") {
+            alert("Agendamento realizado! Entraremos em contato em 48h.");
+            location.reload();
+        }
+    });
     // Inicializa carrosséis e guarda as referências
     const carrosselUnhas = inicializarCarrossel('carousel-unhas');
     const carrosselSobrancelhas = inicializarCarrossel('carousel-sobrancelhas');
