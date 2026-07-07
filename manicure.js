@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 1. Regra do Almoço
         if (hora === 13) continue;
 
-        // 2. Regra das 2 horas de antecedência
+        // 2. Regra das 2 horas de antecedência//
         if (isHoje && hora < dataLimite.getHours()) {
             continue; // Pula horários que já passaram ou estão dentro das 2h de tolerância
         }
