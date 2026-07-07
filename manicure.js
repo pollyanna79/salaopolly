@@ -100,27 +100,52 @@ document.addEventListener('DOMContentLoaded', () => {
             gridHorarios.innerHTML = '';
             if (!dataStr) return;
 
-            const diaSemana = new Date(dataStr + 'T00:00:00').getDay();
-            let horaInicio = (diaSemana === 0 || diaSemana === 6) ? 10 : 9;
-            let horaFim = (diaSemana === 0 || diaSemana === 6) ? 15 : 18;
+            const agora = new Date();
+// Ajusta para o fuso horário local corretamente
+    const dataSelecionada = new Date(dataStr + 'T00:00:00');
+    const diaSemana = dataSelecionada.getDay();
+    
+    // Regra de bloqueio da segunda-feira
+    if (diaSemana === 1) {
+        gridHorarios.innerHTML = '<p>Estamos fechados às segundas-feiras.</p>';
+        return;
+    }
 
-            if (diaSemana === 1) {
-                gridHorarios.innerHTML = '<p>Estamos fechados às segundas-feiras.</p>';
-                return;
-            }
+    const horaInicio = (diaSemana === 0 || diaSemana === 6) ? 10 : 9;
+    const horaFim = (diaSemana === 0 || diaSemana === 6) ? 15 : 18;
 
-            for (let hora = horaInicio; hora < horaFim; hora++) {
-                const btn = document.createElement('button');
-                btn.className = 'hora-btn';
-                btn.innerText = `${String(hora).padStart(2, '0')}:00`;
-                btn.onclick = () => {
-                    gridHorarios.querySelectorAll('.hora-btn').forEach(b => b.classList.remove('selected'));
-                    btn.classList.add('selected');
-                    btnConfirmar.classList.remove('hidden');
-                    btnConfirmar.dataset.hora = btn.innerText;
-                };
-                gridHorarios.appendChild(btn);
-            }
+    // Calcula a hora mínima (agora + 2 horas)
+    const dataLimite = new Date(agora.getTime() + (2 * 60 * 60 * 1000));
+    
+    // Verifica se a data selecionada é hoje
+    const isHoje = dataStr === agora.toISOString().split('T')[0];
+
+    for (let hora = horaInicio; hora < horaFim; hora++) {
+        // 1. Regra do Almoço
+        if (hora === 13) continue;
+
+        // 2. Regra das 2 horas de antecedência
+        if (isHoje && hora < dataLimite.getHours()) {
+            continue; // Pula horários que já passaram ou estão dentro das 2h de tolerância
+        }
+
+        const btn = document.createElement('button');
+        btn.className = 'hora-btn';
+        btn.innerText = `${String(hora).padStart(2, '0')}:00`;
+        
+        btn.onclick = () => {
+            gridHorarios.querySelectorAll('.hora-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            btnConfirmar.classList.remove('hidden');
+            btnConfirmar.dataset.hora = btn.innerText;
+        };
+        gridHorarios.appendChild(btn);
+    }
+
+    if (gridHorarios.innerHTML === '') {
+        gridHorarios.innerHTML = '<p>Não há horários disponíveis para hoje.</p>';
+    }
+            
         }
 
         function resetsPrecedentes() {
