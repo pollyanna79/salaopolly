@@ -41,10 +41,15 @@ document.addEventListener('DOMContentLoaded', () => {
             nome: document.getElementById('cli-nome').value,
             tel: document.getElementById('cli-tel').value,
             email: document.getElementById('cli-email').value,
+            endereco: document.getElementById('cli-end').value,
+            cpf:document.getElementById('cli-cpf').value,
+            cidade:document.getElementById('cli-cidade').value,
+            cep:document.getElementById('cli-cep').value,
+    
             ...agendamentoPendente
         };
 
-        const response = await fetch('agendar.php', {
+        const response = await fetch('tbl_clientes', {
             method: 'POST',
             body: JSON.stringify(dados)
         });
