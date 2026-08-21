@@ -1,0 +1,348 @@
+/* --- RESET E ESTILOS BÁSICOS --- */
+:root {
+    --primary-color: #e95d79;
+    --primary-dark: #a83d5a;
+    --secondary-color: #332936;
+    --bg-color: #fff8f4;
+    --white: #fffdfb;
+    --gold: #d9a441;
+    --border-radius: 14px;
+    --shadow: 0 18px 50px rgba(74, 35, 51, 0.12);
+    --transition: 0.3s ease;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Georgia, 'Times New Roman', serif;
+    background: radial-gradient(circle at 8% 10%, #ffe0e4 0, transparent 28%), radial-gradient(circle at 90% 35%, #f8e6bd 0, transparent 25%), var(--bg-color);
+    color: var(--secondary-color);
+    line-height: 1.6;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 24px clamp(20px, 6vw, 90px);
+    background: linear-gradient(120deg, #fffdfb, #ffe9e3);
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+}
+
+.btn-secondary {
+    margin-left: auto;
+    padding: 12px 20px;
+    border: 1px solid var(--primary-color);
+    border-radius: 999px;
+    background: var(--primary-color);
+    color: var(--white);
+    cursor: pointer;
+    font-weight: 700;
+    transition: var(--transition);
+}
+
+.btn-secondary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+header h1 {
+    color: var(--primary-dark);
+    font-size: clamp(1.8rem, 4vw, 3.1rem);
+}
+
+h2 {
+    margin-bottom: 15px;
+    color: var(--primary-dark);
+    border-bottom: 3px solid var(--gold);
+    display: inline-block;
+    padding-bottom: 5px;
+}
+
+h3 {
+    margin: 20px 0 10px;
+    font-size: 1.2rem;
+}
+
+/* --- LAYOUT RESPONSIVO --- */
+.containers {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 50px 20px;
+    display: flex;
+    flex-wrap: wrap; /* Importante para responsividade */
+    gap: 30px;
+    justify-content: center;
+}
+
+.container-servico {
+    background: rgba(255, 253, 251, 0.88);
+    padding: 25px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(217, 164, 65, 0.25);
+    flex: 1; /* Cresce igualmente */
+    min-width: 320px; /* Não fica menor que isso */
+    max-width: 550px; /* Não fica maior que isso */
+}
+
+/* --- FORMULÁRIOS E AGENDAMENTO --- */
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+select, input[type="date"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #e9cfd0;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+input:not([type="date"]) {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+}
+
+select:focus, input[type="date"]:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.2);
+}
+
+.hidden {
+    display: none !important;
+}
+
+.agendamento-container {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.horarios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.hora-btn {
+    background-color: var(--white);
+    border: 2px solid #ddd;
+    padding: 10px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    text-align: center;
+    transition: var(--transition);
+    font-weight: 500;
+}
+
+.hora-btn:hover:not(.disabled) {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.hora-btn.selected {
+    background: linear-gradient(120deg, var(--primary-color), var(--primary-dark));
+    border-color: var(--primary-color);
+    color: var(--white);
+}
+
+.hora-btn.disabled {
+    background-color: #eee;
+    color: #aaa;
+    cursor: not-allowed;
+    border-color: #eee;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: var(--white);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 999px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    width: 100%;
+    transition: var(--transition);
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+.modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(51, 41, 54, 0.72);
+    backdrop-filter: blur(5px);
+}
+
+.modal-conteudo {
+    position: relative;
+    width: min(100%, 420px);
+    padding: 30px;
+    background: var(--white);
+    border-radius: 20px;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.25);
+}
+
+.modal-conteudo form {
+    display: grid;
+    gap: 10px;
+}
+
+.modal-fechar {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    border: 0;
+    background: transparent;
+    font-size: 1.8rem;
+    cursor: pointer;
+}
+
+#resultado-consulta {
+    margin-top: 20px;
+}
+
+/* --- ESTILOS DO CARROSSEL (RESOLVE SEU PEDIDO) --- */
+.galeria-servicos {
+    display: block !important; 
+    margin-top: 30px;
+    border: 1px solid #ffe4e1; /* Um rosa claro suave */
+    padding: 10px;
+    border-radius: 15px;
+}
+
+.carousel-container {
+    position: relative;
+    width: 100%;
+    max-width: 450px; /* Limita o tamanho máximo do carrossel */
+    margin: 0 auto; /* Centraliza */
+    overflow: hidden; /* Esconde as imagens fora do wrapper */
+    border-radius: var(--border-radius);
+    box-shadow: 0 16px 40px rgba(74, 35, 51, 0.2);
+}
+
+.carousel-slide-wrapper {
+    width: 100%;
+    /* Define uma proporção fixa para o container (ex: 1:1 quadrado) */
+    /* Isso garante que o container sempre tenha espaço para a imagem inteira */
+    position: relative;
+    padding-bottom: 100%; /* Proporção 1:1 (Altura = Largura) */
+}
+
+.carousel-slides {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex; /* Coloca os slides lado a lado */
+    transition: transform 0.5s ease-in-out; /* Animação do deslize */
+}
+
+
+.slide {
+    flex: 0 0 100%;
+    display: flex;
+    flex-direction: column; /* Nome abaixo da imagem */
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.slide img {
+    width: 88%;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+.nome-servico {
+    margin-top: 10px;
+    font-weight: bold;
+    color: var(--primary-dark);
+}
+
+/* Botões de Navegação */
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(255, 255, 255, 0.7);
+    color: var(--secondary-color);
+    border: none;
+    font-size: 1.5rem;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 50%;
+    z-index: 10;
+    transition: var(--transition);
+}
+
+.carousel-btn:hover {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+.carousel-btn.prev { left: 10px; }
+.carousel-btn.next { right: 10px; }
+footer {
+    background: var(--secondary-color);
+    color: #fff;
+    padding: 30px;
+    text-align: center;
+    margin-top: 50px;
+}
+
+.social-footer a {
+    color: #f1bd66;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.icons {
+    margin-top: 10px;
+    font-size: 1.2rem;
+}
+
+.galeria-servicos {
+    display: block !important;
+    background: rgba(255, 255, 255, 0.48);
+}
+
+@media (max-width: 600px) {
+    header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .btn-secondary {
+        margin-left: 0;
+    }
+}
