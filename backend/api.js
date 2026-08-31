@@ -111,6 +111,21 @@ app.post('/tbl_clientes', (req, res) => {
         });
     });
 });
+app.get('/detalhe_agendamento', (req, res) => {
+    const nome = String(req.query.nome || '').trim();
+    if (!nome) return res.status(400).json({ erro: 'Informe o nome do cliente.' });
+
+    const sql = `SELECT id, nome, data_servico, servico, Nome_do_Profissional FROM detalhe_agendamento WHERE nome LIKE ?`;
+    const searchValue = `%${nome}%`;
+
+    db.query(sql, [searchValue], (err, resultados) => {
+        if (err) {
+            console.error('Erro detalhado no MySQL:', err);
+            return res.status(500).json({ erro: 'Erro interno ao consultar reservas no banco.' });
+        }
+        res.json(resultados);
+    });
+});
 const porta = Number(process.env.PORT) || 3000;
 app.listen(porta, () => {
     console.log(`Servidor rodando na porta ${porta}`);

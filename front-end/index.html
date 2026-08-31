@@ -45,27 +45,15 @@
         <button class="modal-fechar" type="button" aria-label="Fechar" onclick="this.closest('.modal').classList.add('hidden')">&times;</button>
         <h2>Dados do Cliente</h2>
         <form id="form-coleta-dados">
-<<<<<<< Updated upstream:front-end/index.html
-            <input type="text" id="cli-nome" placeholder="Nome Completo" required>
-            <input type="tel" id="cli-tel" placeholder="Telefone com DDD" required>
-            <input type="email" id="cli-email" placeholder="E-mail" required>
-            <input type="text" id="cli-end" placeholder="Endereço" required>
-            <input type="text" id="cli-cpf" placeholder="CPF" required>
-            <input type="text" id="cli-cidade" placeholder="Cidade" required>
-            <input type="text" id="cli-cep" placeholder="CEP" required>
-            
-=======
+
             <input type="text" id="cli-nome" placeholder="Nome Completo" required style="width:100%; margin-bottom:10px;">
             <input type="tel" id="cli-tel" placeholder="Telefone com DD(00)" required style="width:100%; margin-bottom:10px;">
             <input type="email" id="cli-email" placeholder="E-mail" required style="width:100%; margin-bottom:10px;">
-            <input type="text" id="cli-endereco" placeholder="Endereço" required style="width:100%; margin-bottom:10px;">
+            <input type="text" id="cli-end" placeholder="Endereço" required style="width:100%; margin-bottom:10px;">
             <input type="number" id="cli-cpf" placeholder="Cpf" required style="width:100%; margin-bottom:10px;">
             <input type="text" id="cli-cidade" placeholder="Cidade" required style="width:100%; margin-bottom:10px;">
             <input type="number" id="cli-cep" placeholder="Cep" required style="width:100%; margin-bottom:10px;">
-<<<<<<< Updated upstream:front-end/index.html
->>>>>>> Stashed changes:index.html
-=======
->>>>>>> Stashed changes:index.html
+
             <button type="submit" class="btn-primary">Confirmar</button>
         </form>
     </div>
@@ -142,9 +130,9 @@
         <button id="fechar-consulta" class="modal-fechar" type="button" aria-label="Fechar">&times;</button>
         <h2>Consultar reservas</h2>
         <form id="form-consulta">
-            <label for="consulta-nome">Nome do cliente</label>
+            <label for="consulta-nome">Informe seu nome :</label>
             <input type="text" id="consulta-nome" required>
-            <button class="btn-primary" type="submit">Buscar</button>
+            <button class="btn-consultar-reserva" type="submit">Buscar</button>
         </form>
         <div id="resultado-consulta" aria-live="polite"></div>
     </div>

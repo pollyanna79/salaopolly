@@ -35,7 +35,7 @@ header {
     margin-bottom: 20px;
 }
 
-<<<<<<< Updated upstream:front-end/manicure.css
+
 .btn-secondary {
     margin-left: auto;
     padding: 12px 20px;
@@ -53,29 +53,16 @@ header {
     transform: translateY(-2px);
 }
 
-header h1 {
-<<<<<<< Updated upstream:front-end/manicure.css
-    color: var(--primary-dark);
-    font-size: clamp(1.8rem, 4vw, 3.1rem);
-=======
-    color: var(--primary-color);
-    font-size: 2.5rem;
-    color: white;
-}
-.container-topo{
-    background-color:#333;
->>>>>>> Stashed changes:manicure.css
-}
-=======
+
 header h1 {
     color: var(--primary-color);
     font-size: 2.5rem;
-    color: white;
+    color: #f1bd66;
 }
 .container-topo{
     background-color:#333;
 }
->>>>>>> Stashed changes:manicure.css
+
 h2 {
     margin-bottom: 15px;
     color: var(--primary-dark);
@@ -191,7 +178,7 @@ select:focus, input[type="date"]:focus {
     border-color: #eee;
 }
 
-.btn-primary {
+.btn-consultar-reserva {
     background-color: var(--primary-color);
     color: var(--white);
     border: none;
@@ -204,7 +191,7 @@ select:focus, input[type="date"]:focus {
     font-weight: 600;
 }
 
-.btn-primary:hover {
+.btn-consultar-reserva:hover {
     background-color: var(--primary-dark);
     transform: translateY(-2px);
 }

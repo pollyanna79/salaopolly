@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const slides = container.querySelectorAll('.slide');
         const nextBtn = container.querySelector('.next');
         const prevBtn = container.querySelector('.prev');
+
         let agendamentoPendente = {};
         
         let indexAtual = 0;
@@ -32,6 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         return { mover }; // Retorna a função para o select controlar
     }
+
+     
         
     // Lógica do Formulário de Coleta
     document.getElementById('form-coleta-dados').addEventListener('submit', async (e) => {
@@ -77,10 +80,10 @@ document.addEventListener('DOMContentLoaded', () => {
             "design": 0, "henna": 1, "microblading": 2, "sobrancelha-fio-a-fio": 3
         };
 
-        // Limitar datas em 2 meses
+        // Limitar datas em 1 mes
         const hoje = new Date();
         const dataMaxima = new Date();
-        dataMaxima.setMonth(hoje.getMonth() + 2);
+        dataMaxima.setMonth(hoje.getMonth() + 1);
         inputData.setAttribute('min', hoje.toISOString().split('T')[0]);
         inputData.setAttribute('max', dataMaxima.toISOString().split('T')[0]);
 
@@ -166,4 +169,72 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inicializa lógica para as duas seções passando o objeto do carrossel correspondente
     configurarAgendamento('servico-unha', 'agendamento-unha', 'data-unha', 'horarios-unha', 'btn-agendar-unha', carrosselUnhas);
     configurarAgendamento('servico-sobrancelha', 'agendamento-sobrancelha', 'data-sobrancelha', 'horarios-sobrancelha', 'btn-agendar-sobrancelha', carrosselSobrancelhas);
+// --- 4. LÓGICA DE CONSULTA DE RESERVAS ---
+    const btnAbrirConsulta = document.getElementById('btn-consultar-reserva');
+    const modalConsulta = document.getElementById('modal-consulta');
+    const btnFecharConsulta = document.getElementById('fechar-consulta');
+    const formConsulta = document.getElementById('form-consulta');
+    const inputConsultaNome = document.getElementById('consulta-nome');
+    const divResultadoConsulta = document.getElementById('resultado-consulta');
+
+    if (btnAbrirConsulta && modalConsulta) {
+        btnAbrirConsulta.addEventListener('click', () => {
+            modalConsulta.classList.remove('hidden');
+            modalConsulta.setAttribute('aria-hidden', 'false');
+        });
+    }
+
+    if (btnFecharConsulta && modalConsulta) {
+        btnFecharConsulta.addEventListener('click', () => {
+            modalConsulta.classList.add('hidden');
+            modalConsulta.setAttribute('aria-hidden', 'true');
+            divResultadoConsulta.innerHTML = '';
+            inputConsultaNome.value = '';
+        });
+    }
+
+    if (formConsulta) {
+        formConsulta.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nomeCliente = inputConsultaNome.value.trim();
+            
+            if (!nomeCliente) return;
+
+            divResultadoConsulta.innerHTML = '<p>Buscando reservas...</p>';
+
+            try {
+                const response = await fetch(`http://localhost:3000/detalhe_agendamento?nome=${encodeURIComponent(nomeCliente)}`);
+                const resultados = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(resultados.erro || 'Erro ao consultar reservas.');
+                }
+
+                if (resultados.length === 0) {
+                    divResultadoConsulta.innerHTML = '<p>Nenhuma reserva encontrada para este nome.</p>';
+                    return;
+                }
+
+                let html = '<ul style="list-style: none; padding: 0; margin-top: 15px;">';
+                resultados.forEach(reserva => {
+                    const dataFormatada = new Date(reserva.data_servico).toLocaleString('pt-BR');
+                    html += `
+                        <li style="background: #f9f9f9; padding: 10px; margin-bottom: 8px; border-radius: 5px; border: 1px solid #ddd;">
+                            <strong>Cliente:</strong> ${reserva.nome} <br>
+                            <strong>Serviço:</strong> ${reserva.servico} <br>
+                            <strong>Data/Hora:</strong> ${dataFormatada} <br>
+                            <strong>Profissional:</strong> ${reserva.Nome_do_Profissional}
+                        </li>
+                    `;
+                });
+                html += '</ul>';
+
+                divResultadoConsulta.innerHTML = html;
+            } catch (error) {
+                divResultadoConsulta.innerHTML = `<p style="color: red;">${error.message}</p>`;
+            }
+        });
+    }
 });
+
+
