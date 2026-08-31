@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="manicure.css">
 </head>
 <body>
-    <header>
+    <header class="container-topo">
         <h1>   BeautifulPolly    🦋</h1>
         <button id="btn-consultar-reserva" class="btn-secondary" type="button">Consultar reservas</button>
     </header>
@@ -45,6 +45,7 @@
         <button class="modal-fechar" type="button" aria-label="Fechar" onclick="this.closest('.modal').classList.add('hidden')">&times;</button>
         <h2>Dados do Cliente</h2>
         <form id="form-coleta-dados">
+<<<<<<< Updated upstream:front-end/index.html
             <input type="text" id="cli-nome" placeholder="Nome Completo" required>
             <input type="tel" id="cli-tel" placeholder="Telefone com DDD" required>
             <input type="email" id="cli-email" placeholder="E-mail" required>
@@ -53,6 +54,15 @@
             <input type="text" id="cli-cidade" placeholder="Cidade" required>
             <input type="text" id="cli-cep" placeholder="CEP" required>
             
+=======
+            <input type="text" id="cli-nome" placeholder="Nome Completo" required style="width:100%; margin-bottom:10px;">
+            <input type="tel" id="cli-tel" placeholder="Telefone com DD(00)" required style="width:100%; margin-bottom:10px;">
+            <input type="email" id="cli-email" placeholder="E-mail" required style="width:100%; margin-bottom:10px;">
+            <input type="text" id="cli-endereco" placeholder="Endereço" required style="width:100%; margin-bottom:10px;">
+            <input type="number" id="cli-cpf" placeholder="Cpf" required style="width:100%; margin-bottom:10px;">
+            <input type="text" id="cli-cidade" placeholder="Cidade" required style="width:100%; margin-bottom:10px;">
+            <input type="number" id="cli-cep" placeholder="Cep" required style="width:100%; margin-bottom:10px;">
+>>>>>>> Stashed changes:index.html
             <button type="submit" class="btn-primary">Confirmar</button>
         </form>
     </div>
