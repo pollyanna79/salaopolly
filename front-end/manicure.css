@@ -195,6 +195,60 @@ select:focus, input[type="date"]:focus {
     background-color: var(--primary-dark);
     transform: translateY(-2px);
 }
+#btn-agendar-unha, #btn-agendar-sobrancelha {
+    display: inline-block;
+    width: 100%;
+    max-width: 250px;
+    margin-top: 15px;
+    padding: 12px 20px;
+    background-color: #d88194; /* Tom de rosa alinhado ao tema */
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+#btn-agendar-unha:hover, #btn-agendar-sobrancelha:hover {
+    background-color: #c06d80; /* Tom um pouco mais escuro para o hover */
+    transform: translateY(-2px);
+}
+
+#btn-agendar-unha:active, #btn-agendar-sobrancelha:active {
+    transform: translateY(0);
+}
+.modal .btn-primary, 
+button[type="submit"].btn-primary {
+    display: inline-block;
+    width: 100%;
+    margin-top: 20px;
+    padding: 12px 20px;
+    background-color: #d88194; /* Tom de rosa alinhado ao tema */
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.modal .btn-primary:hover, 
+button[type="submit"].btn-primary:hover {
+    background-color: #c06d80; /* Tom mais escuro no hover */
+    transform: translateY(-2px);
+}
+
+.modal .btn-primary:active, 
+button[type="submit"].btn-primary:active {
+    transform: translateY(0);
+}
 
 .modal {
     position: fixed;

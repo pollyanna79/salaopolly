@@ -28,20 +28,19 @@ db.connect((err) => {
 
 // Rota inicial de teste
 app.get('/detalhe_agendamento', (req, res) => {
-    const nome = String(req.query.nome || '').trim();
+    const nome = String(req.query.Nome || req.query.nome || '').trim();
     if (!nome) return res.status(400).json({ erro: 'Informe o nome do cliente.' });
 
-    db.query(
-        'SELECT * FROM detalhe_agendamento WHERE LOWER(cliente_nome) LIKE LOWER(?)',
-        [`%${nome}%`],
-        (err, resultados) => {
-            if (err) {
-              
-                return res.status(500).json({ erro: 'Erro ao consultar reservas.' });
-            }
-            res.json(resultados);
+    const sql = `SELECT * FROM mydb.detalhe_agendamento WHERE LOWER(Nome) LIKE LOWER(?)`;
+    const searchValue = `%${nome}%`;
+
+    db.query(sql, [searchValue], (err, resultados) => {
+        if (err) {
+            console.error('Erro detalhado no MySQL:', err);
+            return res.status(500).json({ erro: err.message });
         }
-    );
+        res.json(resultados);
+    });
 });
 app.post('/tbl_clientes', (req, res) => {
     let { cliente_nome, telefone, email, endereco, cpf, cidade, cep, id_servico, data_agenda } = req.body;
@@ -112,16 +111,16 @@ app.post('/tbl_clientes', (req, res) => {
     });
 });
 app.get('/detalhe_agendamento', (req, res) => {
-    const nome = String(req.query.nome || '').trim();
+    const nome = String(req.query.Nome || req.query.nome || '').trim();
     if (!nome) return res.status(400).json({ erro: 'Informe o nome do cliente.' });
 
-    const sql = `SELECT id, nome, data_servico, servico, Nome_do_Profissional FROM detalhe_agendamento WHERE nome LIKE ?`;
+    const sql = `SELECT * FROM mydb.detalhe_agendamento WHERE LOWER(Nome) LIKE LOWER(?)`;
     const searchValue = `%${nome}%`;
 
     db.query(sql, [searchValue], (err, resultados) => {
         if (err) {
             console.error('Erro detalhado no MySQL:', err);
-            return res.status(500).json({ erro: 'Erro interno ao consultar reservas no banco.' });
+            return res.status(500).json({ erro: err.message });
         }
         res.json(resultados);
     });
