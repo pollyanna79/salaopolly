@@ -1,0 +1,782 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <style>
+      :root {
+        color-scheme: light;
+        box-sizing: border-box;
+        padding-top: env(safe-area-inset-top, 0px);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      html {
+        scroll-padding-top: env(safe-area-inset-top, 0px);
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        font:
+          14px -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+        background: #fff;
+        color: #000;
+      }
+      img {
+        max-width: 100%;
+      }
+      [hidden]:not([hidden="until-found" i]) {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <title>Painel Hashtag Eletro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap"
+    />
+    <style>
+      /* Layout: barra superior navy com abas, faixa de filtros fixa, grade de painéis que empilha no celular */
+      :root {
+        --bg: #eef2f7;
+        --surface: #ffffff;
+        --surface2: #f5f8fc;
+        --ink: #0b1f3a;
+        --ink2: #44566f;
+        --muted: #6b7c93;
+        --line: #dce3ec;
+        --grid: #e6ebf2;
+        --nav: #0b1f3a;
+        --navink: #e8eef7;
+        --blue: #2563eb;
+        --amber: #d97706;
+        --teal: #0e9f8e;
+        --coral: #e5484d;
+        --blue-soft: #dbe7fd;
+        --coral-soft: #fbe1e2;
+        --shadow:
+          0 1px 2px rgba(11, 31, 58, 0.06), 0 4px 14px rgba(11, 31, 58, 0.05);
+        --fd: "Sora", "Segoe UI", system-ui, sans-serif;
+        --fb: "Manrope", "Segoe UI", system-ui, sans-serif;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --bg: #0a1424;
+          --surface: #111f36;
+          --surface2: #16273f;
+          --ink: #e8eef7;
+          --ink2: #aebbce;
+          --muted: #8696ae;
+          --line: #223653;
+          --grid: #1d2f4a;
+          --nav: #060d19;
+          --navink: #e8eef7;
+          --blue: #4c8df6;
+          --amber: #bb8000;
+          --teal: #1aa391;
+          --coral: #e5575f;
+          --blue-soft: #1b3358;
+          --coral-soft: #4a2330;
+          --shadow: none;
+          color-scheme: dark;
+        }
+      }
+      :root[data-theme="dark"] {
+        --bg: #0a1424;
+        --surface: #111f36;
+        --surface2: #16273f;
+        --ink: #e8eef7;
+        --ink2: #aebbce;
+        --muted: #8696ae;
+        --line: #223653;
+        --grid: #1d2f4a;
+        --nav: #060d19;
+        --navink: #e8eef7;
+        --blue: #4c8df6;
+        --amber: #bb8000;
+        --teal: #1aa391;
+        --coral: #e5575f;
+        --blue-soft: #1b3358;
+        --coral-soft: #4a2330;
+        --shadow: none;
+        color-scheme: dark;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        background: var(--bg);
+        color: var(--ink);
+        font-family: var(--fb);
+        font-size: 14px;
+        line-height: 1.45;
+        padding-inline: 0;
+      }
+      .wrap {
+        max-width: 1360px;
+        margin-inline: auto;
+        padding-inline: 16px;
+      }
+      header.top {
+        background: var(--nav);
+        color: var(--navink);
+      }
+      .top .wrap {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px 28px;
+        padding-block: 14px;
+      }
+      .brand {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+      .brand b {
+        font-family: var(--fd);
+        font-size: 19px;
+        letter-spacing: 0.2px;
+        font-weight: 700;
+      }
+      .brand span {
+        font-size: 12px;
+        opacity: 0.7;
+      }
+      nav.tabs {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+        margin-left: auto;
+      }
+      nav.tabs button {
+        font: 600 13px var(--fb);
+        color: var(--navink);
+        background: transparent;
+        border: 1px solid transparent;
+        padding: 9px 18px;
+        border-radius: 8px;
+        cursor: pointer;
+        opacity: 0.75;
+      }
+      nav.tabs button:hover {
+        opacity: 1;
+        background: rgba(255, 255, 255, 0.08);
+      }
+      nav.tabs button[aria-selected="true"] {
+        opacity: 1;
+        background: #fff;
+        color: #0b1f3a;
+      }
+      :root[data-theme="dark"] nav.tabs button[aria-selected="true"] {
+        background: #e8eef7;
+      }
+      button:focus-visible,
+      select:focus-visible,
+      input:focus-visible {
+        outline: 2px solid var(--blue);
+        outline-offset: 2px;
+      }
+      .filters {
+        position: sticky;
+        top: env(safe-area-inset-top, 0px);
+        z-index: 20;
+        background: var(--bg);
+        border-bottom: 1px solid var(--line);
+      }
+      .filters .wrap {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 14px;
+        align-items: flex-end;
+        padding-block: 10px;
+      }
+      .f {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        min-width: 0;
+      }
+      .f label {
+        font-size: 10.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        font-weight: 700;
+      }
+      .f select {
+        font: 500 13px var(--fb);
+        color: var(--ink);
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 7px 28px 7px 10px;
+        min-width: 112px;
+        max-width: 100%;
+      }
+      .reset {
+        font: 600 12.5px var(--fb);
+        color: var(--blue);
+        background: transparent;
+        border: 1px solid var(--blue);
+        border-radius: 8px;
+        padding: 7px 14px;
+        cursor: pointer;
+      }
+      .reset:hover {
+        background: var(--blue-soft);
+      }
+      .hint {
+        margin-left: auto;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      main {
+        padding-block: 18px 36px;
+      }
+      section.page {
+        display: none;
+        flex-direction: column;
+        gap: 16px;
+      }
+      section.page.on {
+        display: flex;
+      }
+      .kpis {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+        gap: 12px;
+      }
+      .kpi {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 14px 16px;
+        box-shadow: var(--shadow);
+        min-width: 0;
+      }
+      .kpi small {
+        display: block;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--muted);
+        font-weight: 700;
+      }
+      .kpi strong {
+        display: block;
+        font: 700 25px var(--fd);
+        margin-top: 4px;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .kpi em {
+        font-style: normal;
+        font-size: 12px;
+        color: var(--ink2);
+      }
+      .kpi.neg strong {
+        color: var(--coral);
+      }
+      .grid {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: repeat(12, 1fr);
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: var(--shadow);
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        grid-column: span 6;
+      }
+      .card.w4 {
+        grid-column: span 4;
+      }
+      .card.w5 {
+        grid-column: span 5;
+      }
+      .card.w7 {
+        grid-column: span 7;
+      }
+      .card.w8 {
+        grid-column: span 8;
+      }
+      .card.w12 {
+        grid-column: span 12;
+      }
+      .card h3 {
+        margin: 0;
+        font: 600 14.5px var(--fd);
+        text-wrap: balance;
+      }
+      .card p.sub {
+        margin: -6px 0 0;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .ch {
+        position: relative;
+        height: 260px;
+        min-width: 0;
+      }
+      .ch.tall {
+        height: 340px;
+      }
+      .ch.short {
+        height: 170px;
+      }
+      .legend {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        font-size: 12px;
+        color: var(--ink2);
+      }
+      .legend i {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 3px;
+        margin-right: 6px;
+        vertical-align: -1px;
+      }
+      .tw {
+        overflow-x: auto;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 13px;
+        font-variant-numeric: tabular-nums;
+      }
+      th {
+        text-align: right;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        font-weight: 700;
+        padding: 6px 8px;
+        border-bottom: 1px solid var(--line);
+        white-space: nowrap;
+      }
+      td {
+        padding: 7px 8px;
+        border-bottom: 1px solid var(--grid);
+        text-align: right;
+        white-space: nowrap;
+      }
+      th:first-child,
+      td:first-child {
+        text-align: left;
+      }
+      td.name {
+        max-width: 260px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      tr.click {
+        cursor: pointer;
+      }
+      tr.click:hover td {
+        background: var(--surface2);
+      }
+      .bar {
+        display: inline-block;
+        height: 7px;
+        border-radius: 0 4px 4px 0;
+        background: var(--blue);
+        vertical-align: middle;
+        margin-left: 8px;
+      }
+      .pill {
+        display: inline-block;
+        padding: 1px 8px;
+        border-radius: 99px;
+        font-size: 11.5px;
+        font-weight: 700;
+        background: var(--coral-soft);
+        color: var(--coral);
+      }
+      .search {
+        font: 500 13px var(--fb);
+        color: var(--ink);
+        background: var(--surface2);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 7px 10px;
+        width: 100%;
+        max-width: 280px;
+      }
+      .foot {
+        font-size: 12px;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+      .foot b {
+        color: var(--ink2);
+      }
+      #tip {
+        position: fixed;
+        z-index: 50;
+        pointer-events: none;
+        background: var(--ink);
+        color: var(--bg);
+        padding: 8px 10px;
+        border-radius: 8px;
+        font-size: 12px;
+        line-height: 1.5;
+        max-width: 260px;
+        opacity: 0;
+        transition: opacity 0.08s;
+      }
+      @media (max-width: 1000px) {
+        .card,
+        .card.w4,
+        .card.w5,
+        .card.w7,
+        .card.w8 {
+          grid-column: span 12;
+        }
+      }
+      @media (max-width: 600px) {
+        .hint {
+          display: none;
+        }
+        nav.tabs {
+          margin-left: 0;
+          width: 100%;
+        }
+        nav.tabs button {
+          flex: 1;
+          padding-inline: 8px;
+        }
+        .kpi strong {
+          font-size: 21px;
+        }
+        .ch {
+          height: 240px;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          transition: none !important;
+        }
+      }
+    </style>
+
+    <header class="top">
+      <div class="wrap">
+        <div class="brand">
+          <b>Hashtag Eletro</b
+          ><span>Painel executivo · jan/2020 a jun/2022 · valores em R$</span>
+        </div>
+        <nav class="tabs" role="tablist" aria-label="Dashboards">
+          <button role="tab" id="t-vendas" data-p="vendas" aria-selected="true">
+            Vendas
+          </button>
+          <button
+            role="tab"
+            id="t-clientes"
+            data-p="clientes"
+            aria-selected="false"
+          >
+            Clientes
+          </button>
+          <button
+            role="tab"
+            id="t-produtos"
+            data-p="produtos"
+            aria-selected="false"
+          >
+            Produtos
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <div class="filters">
+      <div class="wrap">
+        <div class="f">
+          <label for="fy">Ano</label
+          ><select id="fy"></select>
+        </div>
+        <div class="f">
+          <label for="fm">Mês</label
+          ><select id="fm"></select>
+        </div>
+        <div class="f">
+          <label for="fc">Categoria</label
+          ><select id="fc"></select>
+        </div>
+        <div class="f">
+          <label for="fp">País</label
+          ><select id="fp"></select>
+        </div>
+        <div class="f">
+          <label for="fs">Sexo</label
+          ><select id="fs"></select>
+        </div>
+        <div class="f">
+          <label for="fa">Faixa etária</label
+          ><select id="fa"></select>
+        </div>
+        <button class="reset" id="reset" type="button">Limpar filtros</button>
+        <span class="hint">Clique nas barras e fatias para filtrar</span>
+      </div>
+    </div>
+
+    <main>
+      <div class="wrap">
+        <section class="page on" id="p-vendas" aria-labelledby="t-vendas">
+          <div class="kpis" id="k-vendas"></div>
+          <div class="grid">
+            <div class="card w4">
+              <h3>Vendas por ano</h3>
+              <p class="sub">Faturamento (R$). 2022 vai até junho.</p>
+              <div class="ch">
+                <canvas
+                  id="c-vano"
+                  role="img"
+                  aria-label="Vendas por ano"
+                ></canvas>
+              </div>
+            </div>
+            <div class="card w8">
+              <h3>Vendas por mês, comparando os anos</h3>
+              <p class="sub">Faturamento mensal (R$) por ano.</p>
+              <div class="legend" id="lg-vmes"></div>
+              <div class="ch">
+                <canvas
+                  id="c-vmes"
+                  role="img"
+                  aria-label="Vendas por mês"
+                ></canvas>
+              </div>
+            </div>
+            <div class="card w8">
+              <h3>Vendas x Devoluções, mês a mês</h3>
+              <p class="sub">
+                Dois gráficos na mesma linha do tempo, cada um com sua escala.
+              </p>
+              <div class="legend">
+                <span><i style="background: var(--blue)"></i>Vendas (R$)</span
+                ><span
+                  ><i style="background: var(--coral)"></i>Devoluções (R$)</span
+                >
+              </div>
+              <div class="ch" style="height: 190px">
+                <canvas
+                  id="c-vt"
+                  role="img"
+                  aria-label="Vendas por mês na linha do tempo"
+                ></canvas>
+              </div>
+              <div class="ch" style="height: 150px">
+                <canvas
+                  id="c-dt"
+                  role="img"
+                  aria-label="Devoluções por mês na linha do tempo"
+                ></canvas>
+              </div>
+            </div>
+            <div class="card w4">
+              <h3>Vendas x Devoluções por ano</h3>
+              <div class="tw"><table id="t-vd"></table></div>
+              <p class="sub">
+                Devolução em R$ = quantidade devolvida × preço unitário.
+              </p>
+            </div>
+            <div class="card w8">
+              <h3>Lucro por mês</h3>
+              <p class="sub">
+                Lucro = vendas − custo dos produtos vendidos (R$).
+              </p>
+              <div class="ch">
+                <canvas
+                  id="c-lmes"
+                  role="img"
+                  aria-label="Lucro por mês"
+                ></canvas>
+              </div>
+            </div>
+            <div class="card w4">
+              <h3>Lucro por ano</h3>
+              <p class="sub">Lucro (R$) e margem sobre as vendas.</p>
+              <div class="ch">
+                <canvas
+                  id="c-lano"
+                  role="img"
+                  aria-label="Lucro por ano"
+                ></canvas>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="page" id="p-clientes" aria-labelledby="t-clientes">
+          <div class="kpis" id="k-clientes"></div>
+          <div class="grid">
+            <div class="card w8">
+              <h3>Clientes e compras por mês</h3>
+              <p class="sub">
+                Clientes distintos que compraram e número de pedidos no mês.
+              </p>
+              <div class="legend">
+                <span><i style="background: var(--blue)"></i>Clientes</span
+                ><span><i style="background: var(--amber)"></i>Compras</span>
+              </div>
+              <div class="ch">
+                <canvas
+                  id="c-cmes"
+                  role="img"
+                  aria-label="Clientes e compras por mês"
+                ></canvas>
+              </div>
+            </div>
+            <div class="card w4">
+              <h3>Clientes e compras por ano</h3>
+              <div class="tw"><table id="t-cano"></table></div>
+              <p class="sub">
+                Um cliente conta uma vez em cada ano em que comprou; no total,
+                uma única vez.
+              </p>
+            </div>
+            <div class="card w5">
+              <h3>Quem mais comprou</h3>
+              <p class="sub">Top 10 clientes por número de compras.</p>
+              <div class="tw"><table id="t-top"></table></div>
+            </div>
+            <div class="card w4">
+              <h3>Faixa etária</h3>
+              <p class="sub">Clientes por idade (em 2022).</p>
+              <div class="ch">
+                <canvas
+                  id="c-faixa"
+                  role="img"
+                  aria-label="Clientes por faixa etária"
+                ></canvas>
+              </div>
+            </div>
+            <div class="card w3" style="grid-column: span 3">
+              <h3>Sexo</h3>
+              <p class="sub">Clientes e compras.</p>
+              <div class="ch short" style="height: 190px">
+                <canvas
+                  id="c-sexo"
+                  role="img"
+                  aria-label="Clientes por sexo"
+                ></canvas>
+              </div>
+              <div class="legend" id="lg-sexo"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="page" id="p-produtos" aria-labelledby="t-produtos">
+          <div class="kpis" id="k-produtos"></div>
+          <div class="grid">
+            <div class="card">
+              <h3>Quantidade vendida por categoria</h3>
+              <p class="sub">Unidades. Clique para filtrar a categoria.</p>
+              <div class="ch tall">
+                <canvas
+                  id="c-cat"
+                  role="img"
+                  aria-label="Quantidade vendida por categoria"
+                ></canvas>
+              </div>
+            </div>
+            <div class="card">
+              <h3>Quantidade devolvida por categoria</h3>
+              <p class="sub">Unidades devolvidas. Clique para filtrar.</p>
+              <div class="ch tall">
+                <canvas
+                  id="c-catd"
+                  role="img"
+                  aria-label="Quantidade devolvida por categoria"
+                ></canvas>
+              </div>
+            </div>
+            <div class="card">
+              <h3>Produtos mais vendidos</h3>
+              <p class="sub">Top 10, em unidades.</p>
+              <div class="ch tall">
+                <canvas
+                  id="c-pv"
+                  role="img"
+                  aria-label="Produtos mais vendidos"
+                ></canvas>
+              </div>
+            </div>
+            <div class="card">
+              <h3>Produtos mais devolvidos</h3>
+              <p class="sub">Top 10, em unidades.</p>
+              <div class="ch tall">
+                <canvas
+                  id="c-pd"
+                  role="img"
+                  aria-label="Produtos mais devolvidos"
+                ></canvas>
+              </div>
+            </div>
+            <div class="card w7">
+              <h3>Países que consumiram os produtos</h3>
+              <p class="sub">
+                Unidades vendidas nas lojas de cada país (top 12). Clique para
+                filtrar.
+              </p>
+              <div class="ch tall">
+                <canvas
+                  id="c-pais"
+                  role="img"
+                  aria-label="Unidades vendidas por país"
+                ></canvas>
+              </div>
+            </div>
+            <div class="card w5">
+              <h3>Produtos: vendido x devolvido</h3>
+              <input
+                class="search"
+                id="q"
+                type="search"
+                placeholder="Buscar produto"
+                aria-label="Buscar produto"
+              />
+              <div class="tw" style="max-height: 340px; overflow-y: auto">
+                <table id="t-prod"></table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <p class="foot" style="margin-top: 20px">
+          <b>Como ler os números.</b> Vendas = quantidade × preço unitário do
+          cadastro de produtos. Lucro = vendas − quantidade × custo unitário.
+          Devoluções em R$ usam o preço unitário. País é o da loja que fez a
+          venda. Faixa etária e sexo vêm do cadastro de clientes; a idade é
+          calculada para 2022. A base de 2022 termina em 30/06. Todos os filtros
+          valem para as três abas.
+        </p>
+      </div>
+    </main>
+    <div id="tip" role="status"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script src="./Painel%20Hashtag%20Eletro.js"></script>
+  </body>
+</html>
