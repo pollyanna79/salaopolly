@@ -689,12 +689,30 @@ input:focus {
 
 @media (max-width: 900px) {
     .site-header {
+        flex-wrap: wrap;
         gap: 14px;
         padding: 13px 22px;
     }
 
     .main-nav {
-        display: none;
+        display: flex;
+        flex-basis: 100%;
+        gap: clamp(14px, 4vw, 28px);
+        justify-content: center;
+        order: 3;
+    }
+
+    .main-nav a {
+        font-size: 0.88rem;
+    }
+
+    .site-header > .brand {
+        margin-right: auto;
+    }
+
+    .site-header > .btn-secondary {
+        margin-left: auto;
+        order: 2;
     }
 
     .footer-main {
@@ -704,22 +722,33 @@ input:focus {
 
 @media (max-width: 620px) {
     .site-header {
-        padding: 12px 16px;
+        column-gap: 8px;
+        padding: 10px clamp(12px, 4vw, 18px);
     }
 
     .brand {
-        font-size: 1.03rem;
+        font-size: clamp(0.88rem, 4.3vw, 1.03rem);
+        gap: 7px;
     }
 
     .brand-mark {
-        height: 34px;
-        width: 34px;
+        flex: 0 0 32px;
+        height: 32px;
+        width: 32px;
     }
 
     .btn-secondary {
-        font-size: 0.8rem;
-        min-height: 40px;
-        padding: 8px 13px;
+        font-size: clamp(0.7rem, 3.5vw, 0.8rem);
+        min-height: 38px;
+        padding: 7px clamp(9px, 3vw, 13px);
+    }
+
+    .main-nav {
+        gap: clamp(10px, 4vw, 18px);
+    }
+
+    .main-nav a {
+        font-size: clamp(0.72rem, 3.6vw, 0.84rem);
     }
 
     .hero {
@@ -755,7 +784,7 @@ input:focus {
     }
 
     .container-servico {
-        padding: 21px;
+        padding: clamp(16px, 5vw, 21px);
     }
 
     .service-description {
@@ -763,7 +792,7 @@ input:focus {
     }
 
     .modal-conteudo {
-        padding: 28px 22px;
+        padding: 28px clamp(16px, 5vw, 22px);
     }
 
     .footer-main {
@@ -775,6 +804,21 @@ input:focus {
         align-items: start;
         flex-direction: column;
         gap: 8px;
+    }
+}
+
+@media (max-width: 360px) {
+    .main-nav {
+        gap: 10px;
+    }
+
+    .main-nav a {
+        font-size: 0.72rem;
+    }
+
+    .services-section {
+        padding-right: 12px;
+        padding-left: 12px;
     }
 }
 
