@@ -1,300 +1,434 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const carrosseis = new Map();
+    let agendamentoPendente = null;
 
-    // --- 1. CONFIGURAÇÃO DOS CARROSSÉIS ---
     function inicializarCarrossel(idContainer) {
         const container = document.getElementById(idContainer);
+        if (!container) return null;
+
         const slidesTrack = container.querySelector('.carousel-slides');
-        const slides = container.querySelectorAll('.slide');
+        const slides = Array.from(container.querySelectorAll('.slide'));
         const nextBtn = container.querySelector('.next');
         const prevBtn = container.querySelector('.prev');
-   
+        if (!slidesTrack || slides.length === 0) return null;
 
-        let agendamentoPendente = {};
-        
         let indexAtual = 0;
-        
-        // Carrossel Automático
-        let autoPlay = setInterval(() => mover(indexAtual + 1), 3000);
+        let autoPlay = null;
 
         function mover(index) {
             indexAtual = (index + slides.length) % slides.length;
             slidesTrack.style.transform = `translateX(-${indexAtual * 100}%)`;
         }
-        // Função para travar/parar o autoplay quando o usuário escolher manualmente
+
         function pararAutoPlay() {
-            clearInterval(autoPlay);
+            if (autoPlay !== null) {
+                window.clearInterval(autoPlay);
+                autoPlay = null;
+            }
         }
 
-        // Interação manual
-        nextBtn.addEventListener('click', () => { 
+        function iniciarAutoPlay() {
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
             pararAutoPlay();
-            clearInterval(autoPlay); 
-            mover(indexAtual + 1); 
-        });
-        
-        prevBtn.addEventListener('click', () => { 
+            autoPlay = window.setInterval(() => mover(indexAtual + 1), 3500);
+        }
+
+        nextBtn?.addEventListener('click', () => {
             pararAutoPlay();
-            clearInterval(autoPlay); 
-            mover(indexAtual - 1); 
+            mover(indexAtual + 1);
         });
 
-        return { mover, pararAutoPlay }; // Retorna a função para o select controlar
+        prevBtn?.addEventListener('click', () => {
+            pararAutoPlay();
+            mover(indexAtual - 1);
+        });
+
+        iniciarAutoPlay();
+        return { mover, pararAutoPlay };
     }
 
- // Inicializa carrosséis e guarda as referências
-    const carrosselUnhas = inicializarCarrossel('carousel-unhas');
-    const carrosselSobrancelhas = inicializarCarrossel('carousel-sobrancelhas');
-     // --- 2. LÓGICA DO FORMULÁRIO DE COLETA (GLOBAL) ---
-    const formColeta = document.getElementById('form-coleta-dados');
-    const modalContainer = document.getElementById('modal-agendamento');
-        
-    // Lógica do Formulário de Coleta
-    if (formColeta) {
-        formColeta.addEventListener('submit', async (e) => {
-            e.preventDefault();
-        
-        const dados = {
-            cliente_nome: document.getElementById('cli-nome').value,
-            telefone: document.getElementById('cli-tel').value,
-            email: document.getElementById('cli-email').value,
-            endereco: document.getElementById('cli-end').value,
-            cpf: document.getElementById('cli-cpf').value,
-            cidade: document.getElementById('cli-cidade').value,
-            cep: document.getElementById('cli-cep').value,
-            ...(window.agendamentoPendente || {})
-        };
+    carrosseis.set('unhas', inicializarCarrossel('carousel-unhas'));
+    carrosseis.set('sobrancelhas', inicializarCarrossel('carousel-sobrancelhas'));
+    carrosseis.set('beleza', inicializarCarrossel('carousel-beleza'));
 
-     try {
-                const response = await fetch('http://localhost:3000/tbl_clientes', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(dados)
-                });
+    function configurarAgendamento(config) {
+        const selectServico = document.getElementById(config.select);
+        const containerAgendamento = document.getElementById(config.agendamento);
+        const inputData = document.getElementById(config.data);
+        const gridHorarios = document.getElementById(config.horarios);
+        const btnConfirmar = document.getElementById(config.botao);
+        const carrossel = carrosseis.get(config.carrossel);
 
-                const res = await response.json().catch(() => ({}));
+        if (!selectServico || !containerAgendamento || !inputData || !gridHorarios || !btnConfirmar) return;
 
-                // Considera sucesso se o status HTTP for 2xx ou se a API retornar sucesso
-                if (response.ok) {
-                    alert("Agendamento realizado com sucesso! Entraremos em contato em breve.");
-                    
-                    // Fecha o modal e limpa os campos
-                    if (modalContainer) {
-                        modalContainer.classList.add('hidden');
-                        modalContainer.setAttribute('aria-hidden', 'true');
-                    }
-                    formColeta.reset();
-                    window.agendamentoPendente = null;
-
-                    // Opcional: recarrega após fechar para resetar os estados da tela
-                    setTimeout(() => location.reload(), 500);
-                } else {
-                    alert("Erro: " + (res.erro || "Falha ao salvar dados no servidor."));
-                }
-            } catch (err) {
-                console.error(err);
-                alert("Erro de conexão com o servidor. Verifique se a API está rodando.");
-            }
-        });
-    }
-   
-   
-
-    // --- 2. LÓGICA DE AGENDAMENTO ---
-    function configurarAgendamento(idSelect, idAgendamentoCont, idData, idHorarios, idBtnConfirmar, carrosselObj) {
-        const selectServico = document.getElementById(idSelect);
-        const containerAgendamento = document.getElementById(idAgendamentoCont);
-        const inputData = document.getElementById(idData);
-        const gridHorarios = document.getElementById(idHorarios);
-        const btnConfirmar = document.getElementById(idBtnConfirmar);
-        
-        // Mapeamento de serviço para índice do slide
-     const mapaIndices = {
-    "decorada": 0,
-    "peemao": 1,
-    "pedicure": 2,
-    "mao": 3,
-    "unhadegel": 4,
-    "unhadefibra": 5,
-    "unhaacrilico": 6,
-    "design": 0, // Ajuste conforme a seção de sobrancelhas se necessário
-    "henna": 1,
-    "microblading": 2,
-    "sobrancelha-fio-a-fio": 3
-};
-        // Limitar datas em 1 mes
         const hoje = new Date();
-        const dataMaxima = new Date();
-        dataMaxima.setMonth(hoje.getMonth() + 1);
-        inputData.setAttribute('min', hoje.toISOString().split('T')[0]);
-        inputData.setAttribute('max', dataMaxima.toISOString().split('T')[0]);
+        const dataMaxima = new Date(hoje);
+        dataMaxima.setMonth(dataMaxima.getMonth() + 1);
+        inputData.min = formatarDataLocal(hoje);
+        inputData.max = formatarDataLocal(dataMaxima);
 
-        selectServico.addEventListener('change', (e) => {
-            // Mostra galeria e para o automático no slide correspondente
-            const opcaoSelecionada = e.target.options[e.target.selectedIndex];
-    const chave = opcaoSelecionada.getAttribute('data-chave');
-            // Move o carrossel para o índice correspondente
-    if(carrosselObj) {
-        carrosselObj.pararAutoPlay();
-        carrosselObj.mover(mapaIndices[chave] || 0);
-    }
-    
-    containerAgendamento.classList.remove('hidden');
-});
+        selectServico.addEventListener('change', () => {
+            const opcaoSelecionada = selectServico.options[selectServico.selectedIndex];
+            const chave = opcaoSelecionada.dataset.chave;
+            const indice = config.indicesPorChave[chave];
 
-        // Evento de selecionar data
-        inputData.addEventListener('change', (e) => {
-            gerarHorarios(e.target.value);
+            carrossel?.pararAutoPlay();
+            if (indice !== undefined) carrossel?.mover(indice);
+
+            containerAgendamento.classList.remove('hidden');
+            inputData.value = '';
+            gridHorarios.replaceChildren();
             btnConfirmar.classList.add('hidden');
+            btnConfirmar.dataset.hora = '';
+        });
+
+        inputData.addEventListener('change', () => {
+            gerarHorarios(inputData.value);
+            btnConfirmar.classList.add('hidden');
+            btnConfirmar.dataset.hora = '';
         });
 
         function gerarHorarios(dataStr) {
-            gridHorarios.innerHTML = '';
+            gridHorarios.replaceChildren();
             if (!dataStr) return;
 
+            const dataSelecionada = new Date(`${dataStr}T00:00:00`);
+            const diaSemana = dataSelecionada.getDay();
+            if (diaSemana === 1) {
+                mostrarMensagem(gridHorarios, 'Estamos fechados às segundas-feiras.');
+                return;
+            }
+
             const agora = new Date();
-// Ajusta para o fuso horário local corretamente
-    const dataSelecionada = new Date(dataStr + 'T00:00:00');
-    const diaSemana = dataSelecionada.getDay();
-    
-    // Regra de bloqueio da segunda-feira
-    if (diaSemana === 1) {
-        gridHorarios.innerHTML = '<p>Estamos fechados às segundas-feiras.</p>';
-        return;
-    }
+            const dataHoje = formatarDataLocal(agora);
+            const dataLimite = new Date(agora.getTime() + 2 * 60 * 60 * 1000);
+            const horaMinima = dataStr === dataHoje
+                ? dataLimite.getHours() + (dataLimite.getMinutes() > 0 || dataLimite.getSeconds() > 0 ? 1 : 0)
+                : 0;
+            const horaInicio = diaSemana === 0 || diaSemana === 6 ? 10 : 9;
+            const horaFim = diaSemana === 0 || diaSemana === 6 ? 15 : 18;
 
-    const horaInicio = (diaSemana === 0 || diaSemana === 6) ? 10 : 9;
-    const horaFim = (diaSemana === 0 || diaSemana === 6) ? 15 : 18;
+            for (let hora = horaInicio; hora < horaFim; hora += 1) {
+                if (hora === 13 || (dataStr === dataHoje && hora < horaMinima)) continue;
 
-    // Calcula a hora mínima (agora + 2 horas)
-    const dataLimite = new Date(agora.getTime() + (2 * 60 * 60 * 1000));
-    
-    // Verifica se a data selecionada é hoje
-    const isHoje = dataStr === agora.toISOString().split('T')[0];
+                const botaoHora = document.createElement('button');
+                botaoHora.className = 'hora-btn';
+                botaoHora.type = 'button';
+                botaoHora.textContent = `${String(hora).padStart(2, '0')}:00`;
+                botaoHora.addEventListener('click', () => {
+                    gridHorarios.querySelectorAll('.hora-btn').forEach((botao) => botao.classList.remove('selected'));
+                    botaoHora.classList.add('selected');
+                    btnConfirmar.classList.remove('hidden');
+                    btnConfirmar.dataset.hora = botaoHora.textContent;
+                });
+                gridHorarios.appendChild(botaoHora);
+            }
 
-    for (let hora = horaInicio; hora < horaFim; hora++) {
-        // 1. Regra do Almoço
-        if (hora === 13) continue;
-
-        // 2. Regra das 2 horas de antecedência//
-        if (isHoje && hora < dataLimite.getHours()) {
-            continue; // Pula horários que já passaram ou estão dentro das 2h de tolerância
+            if (!gridHorarios.querySelector('.hora-btn')) {
+                mostrarMensagem(gridHorarios, 'Não há horários disponíveis para esta data.');
+            }
         }
-
-        const btn = document.createElement('button');
-        btn.className = 'hora-btn';
-        btn.innerText = `${String(hora).padStart(2, '0')}:00`;
-        
-        btn.onclick = () => {
-            gridHorarios.querySelectorAll('.hora-btn').forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-            btnConfirmar.classList.remove('hidden');
-            btnConfirmar.dataset.hora = btn.innerText;
-        };
-        gridHorarios.appendChild(btn);
-    }
-
-    if (gridHorarios.innerHTML === '') {
-        gridHorarios.innerHTML = '<p>Não há horários disponíveis para hoje.</p>';
-    }
-            
-        }
-
-  
 
         btnConfirmar.addEventListener('click', () => {
-            const opcaoSelecionada = selectServico.options[selectServico.selectedIndex];
-            const chave = opcaoSelecionada.getAttribute('data-chave');
-            
-            // Mapeamento dos IDs numéricos dos serviços no banco (ajuste os números conforme sua tabela id_servico)
-            const mapaIdsServicos = {
-              "decorada": 0,"peemao": 1, "pedicure": 2,"mao": 3,"unhadegel":4 ,"unhadefibra": 5, "unhaacrilico": 6, 
-            "design": 7, "henna": 8, "microblading": 9, "sobrancelha-fio-a-fio": 10
-            };
-
-            // Salva os dados pendentes para enviar no submit do formulário de cadastro
-            window.agendamentoPendente = {
-                id_servico: mapaIdsServicos[chave] || Number(selectServico.value) || 1,
-                data_agenda: `${inputData.value} ${btnConfirmar.dataset.hora}:00`
-            };
-
-            // Encontra e exibe o modal de cadastro de clientes que está escondido no HTML
-            const modalContainer = document.getElementById('modal-agendamento');
-            if (modalContainer) {
-                modalContainer.classList.remove('hidden');
-                modalContainer.setAttribute('aria-hidden', 'false');
+            const hora = btnConfirmar.dataset.hora;
+            if (!selectServico.value || !inputData.value || !hora) {
+                alert('Selecione o serviço, a data e um horário para continuar.');
+                return;
             }
+
+            agendamentoPendente = {
+                id_servico: Number(selectServico.value),
+                data_agenda: `${inputData.value} ${hora}:00`
+            };
+
+            const modal = document.getElementById('modal-agendamento');
+            modal?.classList.remove('hidden');
+            modal?.setAttribute('aria-hidden', 'false');
         });
     }
 
-    // Inicializa lógica para as duas seções passando o objeto do carrossel correspondente
-    configurarAgendamento('servico-unha', 'agendamento-unha', 'data-unha', 'horarios-unha', 'btn-agendar-unha', carrosselUnhas);
-    configurarAgendamento('servico-sobrancelha', 'agendamento-sobrancelha', 'data-sobrancelha', 'horarios-sobrancelha', 'btn-agendar-sobrancelha', carrosselSobrancelhas);
-// --- 4. LÓGICA DE CONSULTA DE RESERVAS ---
+    configurarAgendamento({
+        select: 'servico-unha',
+        agendamento: 'agendamento-unha',
+        data: 'data-unha',
+        horarios: 'horarios-unha',
+        botao: 'btn-agendar-unha',
+        carrossel: 'unhas',
+        indicesPorChave: {
+            decorada: 0,
+            peemao: 1,
+            pedicure: 2,
+            mao: 3,
+            unhadegel: 4,
+            unhadefibra: 5,
+            unhaacrilico: 6
+        }
+    });
+
+    configurarAgendamento({
+        select: 'servico-sobrancelha',
+        agendamento: 'agendamento-sobrancelha',
+        data: 'data-sobrancelha',
+        horarios: 'horarios-sobrancelha',
+        botao: 'btn-agendar-sobrancelha',
+        carrossel: 'sobrancelhas',
+        indicesPorChave: {
+            design: 0,
+            henna: 1,
+            microblading: 2,
+            'sobrancelha-fio-a-fio': 3
+        }
+    });
+
+    configurarAgendamento({
+        select: 'servico-beleza',
+        agendamento: 'agendamento-beleza',
+        data: 'data-beleza',
+        horarios: 'horarios-beleza',
+        botao: 'btn-agendar-beleza',
+        carrossel: 'beleza',
+        indicesPorChave: {
+            progressiva: 0,
+            corte: 1,
+            pintura: 2,
+            maquiagem: 3,
+            'penteado-noiva': 4,
+            'penteado-debutante': 5
+        }
+    });
+
+    const formColeta = document.getElementById('form-coleta-dados');
+    const modalAgendamento = document.getElementById('modal-agendamento');
+    const modalConfirmacao = document.getElementById('modal-confirmacao');
+    const mensagemEmailConfirmacao = document.getElementById('mensagem-email-confirmacao');
+    const erroAgendamento = document.getElementById('erro-agendamento');
+    formColeta?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        erroAgendamento?.replaceChildren();
+        if (!agendamentoPendente) {
+            alert('Escolha um serviço, uma data e um horário antes de confirmar.');
+            return;
+        }
+
+        const dados = {
+            cliente_nome: document.getElementById('cli-nome').value.trim(),
+            telefone: document.getElementById('cli-tel').value.trim(),
+            email: document.getElementById('cli-email').value.trim(),
+            endereco: document.getElementById('cli-end').value.trim(),
+            cpf: document.getElementById('cli-cpf').value.trim(),
+            cidade: document.getElementById('cli-cidade').value.trim(),
+            cep: document.getElementById('cli-cep').value.trim(),
+            ...agendamentoPendente
+        };
+
+        const cidadesAtendidas = new Set([
+            'maua',
+            'santo andre',
+            'capuava',
+            'sao bernardo',
+            'sao bernado',
+            'sao bernardo do campo',
+            'sao bernado do campo',
+            'diadema',
+            'ribeirao pires',
+            'sao caetano',
+            'sao caetano do sul'
+        ]);
+        const cidadeNormalizada = dados.cidade
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .trim()
+            .toLowerCase()
+            .replace(/\s+/g, ' ');
+        const nomeCompletoValido = /^[\p{L}][\p{L}\p{M}\s'.-]{1,99}$/u.test(dados.cliente_nome)
+            && dados.cliente_nome.split(/\s+/).length >= 2;
+        const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(dados.email);
+        const cepValido = /^\d{5}-?\d{3}$/.test(dados.cep);
+
+        if (!nomeCompletoValido) {
+            mostrarMensagem(erroAgendamento, 'Informe seu nome completo, com pelo menos nome e sobrenome.', true);
+            document.getElementById('cli-nome').focus();
+            return;
+        }
+        if (!emailValido) {
+            mostrarMensagem(erroAgendamento, 'Informe um endereço de e-mail válido.', true);
+            document.getElementById('cli-email').focus();
+            return;
+        }
+        if (!cepValido) {
+            mostrarMensagem(erroAgendamento, 'Informe um CEP válido com 8 números.', true);
+            document.getElementById('cli-cep').focus();
+            return;
+        }
+        if (!cidadesAtendidas.has(cidadeNormalizada)) {
+            mostrarMensagem(erroAgendamento, 'Sentimos muito, mas não podemos te atender devido à distância 😔. Atendemos Mauá, Santo André, Capuava, São Bernardo do Campo, Diadema, Ribeirão Pires e São Caetano do Sul.', true);
+            document.getElementById('cli-cidade').focus();
+            return;
+        }
+
+        const botaoConfirmar = formColeta.querySelector('button[type="submit"]');
+        if (botaoConfirmar) botaoConfirmar.disabled = true;
+        try {
+            const response = await fetch('http://localhost:3000/tbl_clientes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            });
+            const resultado = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                throw new Error(resultado.erro || 'Não foi possível confirmar o agendamento.');
+            }
+
+            fecharModal('modal-agendamento');
+            formColeta.reset();
+            agendamentoPendente = null;
+            if (mensagemEmailConfirmacao) {
+                mensagemEmailConfirmacao.textContent = `Seu agendamento foi registrado para ${dados.email}. O sistema ainda não está configurado para enviar e-mails automaticamente; por enquanto, você pode consultar sua reserva pelo botão “Consultar reserva” na página.`;
+            }
+            modalConfirmacao?.classList.remove('hidden');
+            modalConfirmacao?.setAttribute('aria-hidden', 'false');
+        } catch (error) {
+            console.error('Erro ao confirmar agendamento:', error);
+            mostrarMensagem(
+                erroAgendamento,
+                error instanceof Error ? error.message : 'Erro de conexão com o servidor. Verifique se a API está rodando.',
+                true
+            );
+        } finally {
+            if (botaoConfirmar) botaoConfirmar.disabled = false;
+        }
+    });
+
+    document.getElementById('btn-voltar-inicio')?.addEventListener('click', () => {
+        fecharModal('modal-confirmacao');
+        document.querySelectorAll('.container-servico select').forEach((select) => {
+            select.selectedIndex = 0;
+        });
+        document.querySelectorAll('.agendamento-container').forEach((container) => {
+            container.classList.add('hidden');
+        });
+        document.querySelectorAll('.horarios-grid').forEach((grid) => grid.replaceChildren());
+        document.querySelectorAll('[id^="btn-agendar-"]').forEach((botao) => {
+            botao.classList.add('hidden');
+            botao.dataset.hora = '';
+        });
+    });
+
+    document.querySelectorAll('[data-fechar-modal]').forEach((botao) => {
+        botao.addEventListener('click', () => fecharModal(botao.dataset.fecharModal));
+    });
+
     const btnAbrirConsulta = document.getElementById('btn-consultar-reserva');
     const modalConsulta = document.getElementById('modal-consulta');
     const btnFecharConsulta = document.getElementById('fechar-consulta');
     const formConsulta = document.getElementById('form-consulta');
-    const inputConsultaNome = document.getElementById('consulta-nome');
+    const inputConsulta = document.getElementById('consulta-identificador');
     const divResultadoConsulta = document.getElementById('resultado-consulta');
+    const btnBuscarReservas = formConsulta?.querySelector('button[type="submit"]');
 
-    if (btnAbrirConsulta && modalConsulta) {
-        btnAbrirConsulta.addEventListener('click', () => {
-            modalConsulta.classList.remove('hidden');
-            modalConsulta.setAttribute('aria-hidden', 'false');
-        });
-    }
+    btnAbrirConsulta?.addEventListener('click', () => {
+        modalConsulta?.classList.remove('hidden');
+        modalConsulta?.setAttribute('aria-hidden', 'false');
+        inputConsulta?.focus();
+    });
 
-    if (btnFecharConsulta && modalConsulta) {
-        btnFecharConsulta.addEventListener('click', () => {
-            modalConsulta.classList.add('hidden');
-            modalConsulta.setAttribute('aria-hidden', 'true');
-            divResultadoConsulta.innerHTML = '';
-            inputConsultaNome.value = '';
-        });
-    }
+    btnFecharConsulta?.addEventListener('click', () => {
+        fecharModal('modal-consulta');
+        divResultadoConsulta?.replaceChildren();
+        if (inputConsulta) inputConsulta.value = '';
+    });
 
-    if (formConsulta) {
-        formConsulta.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const nomeCliente = inputConsultaNome.value.trim();
-            
-            if (!nomeCliente) return;
+    formConsulta?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const identificador = inputConsulta?.value.trim() || '';
+        const pareceEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identificador);
 
-            divResultadoConsulta.innerHTML = '<p>Buscando reservas...</p>';
+        if (identificador.length < 2 || (identificador.includes('@') && !pareceEmail)) {
+            mostrarMensagem(divResultadoConsulta, 'Informe um nome ou um e-mail válido.', true);
+            return;
+        }
 
-            try {
-                const response = await fetch(`http://localhost:3000/detalhe_agendamento?Nome=${encodeURIComponent(nomeCliente)}`);
-                const resultados = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(resultados.erro || 'Erro ao consultar reservas.');
-                }
-
-                if (resultados.length === 0) {
-                    divResultadoConsulta.innerHTML = '<p>Nenhuma reserva encontrada para este nome.</p>';
-                    return;
-                }
-
-                let html = '<ul style="list-style: none; padding: 0; margin-top: 15px;">';
-                resultados.forEach(reserva => {
-                    const dataFormatada = new Date(reserva.Data_servico).toLocaleString('pt-BR');
-                    html += `
-                        <li style="background: #f9f9f9; padding: 10px; margin-bottom: 8px; border-radius: 5px; border: 1px solid #ddd;">
-                            <strong>Cliente:</strong> ${reserva.Nome} <br>
-                            <strong>Serviço:</strong> ${reserva.Servico} <br>
-                            <strong>Data/Hora:</strong> ${dataFormatada} <br>
-                            <strong>Profissional:</strong> ${reserva.Profissional}
-                        </li>
-                    `;
-                });
-                html += '</ul>';
-
-                divResultadoConsulta.innerHTML = html;
-            } catch (error) {
-                divResultadoConsulta.innerHTML = `<p style="color: red;">${error.message}</p>`;
+        mostrarMensagem(divResultadoConsulta, 'Buscando suas reservas...');
+        if (btnBuscarReservas) btnBuscarReservas.disabled = true;
+        const controller = new AbortController();
+        const timeout = window.setTimeout(() => controller.abort(), 15000);
+        try {
+            const parametros = new URLSearchParams({ busca: identificador, Nome: identificador });
+            const response = await fetch(`http://localhost:3000/detalhe_agendamento?${parametros}`, {
+                signal: controller.signal
+            });
+            const resultados = await response.json();
+            if (!response.ok) {
+                throw new Error(resultados.erro || 'Não foi possível consultar as reservas.');
             }
+            exibirReservas(divResultadoConsulta, resultados);
+        } catch (error) {
+            console.error('Erro ao consultar reserva:', error);
+            const mensagem = error instanceof DOMException && error.name === 'AbortError'
+                ? 'A consulta demorou muito para responder. Confira se a API e o banco de dados estão ativos e tente novamente.'
+                : error instanceof Error
+                    ? error.message
+                    : 'Erro de conexão com o servidor. Confira se a API está rodando.';
+            mostrarMensagem(divResultadoConsulta, mensagem, true);
+        } finally {
+            window.clearTimeout(timeout);
+            if (btnBuscarReservas) btnBuscarReservas.disabled = false;
+        }
+    });
+
+    function fecharModal(id) {
+        const modal = document.getElementById(id);
+        modal?.classList.add('hidden');
+        modal?.setAttribute('aria-hidden', 'true');
+    }
+
+    function mostrarMensagem(container, mensagem, erro = false) {
+        if (!container) return;
+        const paragrafo = document.createElement('p');
+        paragrafo.textContent = mensagem;
+        if (erro) paragrafo.classList.add('mensagem-erro');
+        container.replaceChildren(paragrafo);
+    }
+
+    function exibirReservas(container, resultados) {
+        if (!container) return;
+        if (!Array.isArray(resultados) || resultados.length === 0) {
+            mostrarMensagem(container, 'Nenhuma reserva encontrada. Confira os dados informados.');
+            return;
+        }
+
+        const lista = document.createElement('ul');
+        resultados.forEach((reserva) => {
+            const item = document.createElement('li');
+            item.className = 'resultado-reserva';
+            [
+                ['Cliente', reserva.Nome],
+                ['Serviço', reserva.Servico],
+                ['Data e horário', formatarDataReserva(reserva.Data_servico)],
+                ['Profissional', reserva.Profissional]
+            ].forEach(([rotulo, valor]) => {
+                const linha = document.createElement('li');
+                const destaque = document.createElement('strong');
+                destaque.textContent = `${rotulo}: `;
+                linha.append(destaque, document.createTextNode(valor ? String(valor) : 'Não informado'));
+                item.appendChild(linha);
+            });
+            lista.appendChild(item);
         });
+        container.replaceChildren(lista);
+    }
+
+    function formatarDataReserva(valor) {
+        if (!valor) return 'Não informada';
+        const data = new Date(valor);
+        return Number.isNaN(data.getTime()) ? String(valor) : data.toLocaleString('pt-BR');
+    }
+
+    function formatarDataLocal(data) {
+        const ano = data.getFullYear();
+        const mes = String(data.getMonth() + 1).padStart(2, '0');
+        const dia = String(data.getDate()).padStart(2, '0');
+        return `${ano}-${mes}-${dia}`;
     }
 });
-
-

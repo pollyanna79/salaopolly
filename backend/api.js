@@ -26,28 +26,154 @@ db.connect((err) => {
     console.log('Conectado ao MySQL com sucesso!');
 });
 
-// Rota inicial de teste
 app.get('/detalhe_agendamento', (req, res) => {
-    const nome = String(req.query.Nome || req.query.nome || '').trim();
-    if (!nome) return res.status(400).json({ erro: 'Informe o nome do cliente.' });
+    const busca = String(req.query.busca || req.query.Nome || req.query.nome || req.query.email || '').trim();
+    if (!busca) return res.status(400).json({ erro: 'Informe seu nome ou e-mail.' });
 
-    const sql = `SELECT * FROM mydb.detalhe_agendamento WHERE LOWER(Nome) LIKE LOWER(?)`;
-    const searchValue = `%${nome}%`;
+    const pareceEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(busca);
+    if (busca.includes('@') && !pareceEmail) {
+        return res.status(400).json({ erro: 'Informe um e-mail válido ou seu nome.' });
+    }
 
-    db.query(sql, [searchValue], (err, resultados) => {
+    const nomeBusca = `%${busca.replace(/[\\%_]/g, '\\$&')}%`;
+    const sql = `
+        SELECT reservas.*
+        FROM mydb.detalhe_agendamento AS reservas
+        INNER JOIN mydb.tbl_clientes AS clientes
+            ON clientes.idclientes = reservas.Cod
+        WHERE LOWER(TRIM(clientes.email)) = LOWER(TRIM(?))
+           OR LOWER(TRIM(clientes.cliente_nome)) LIKE LOWER(?)
+    `;
+
+    db.query({ sql, timeout: 10000 }, [busca, nomeBusca], (err, resultados) => {
         if (err) {
-            console.error('Erro detalhado no MySQL:', err);
-            return res.status(500).json({ erro: err.message });
+            console.error('Erro ao consultar agendamentos:', err);
+            const tempoEsgotado = err.code === 'PROTOCOL_SEQUENCE_TIMEOUT';
+            return res.status(tempoEsgotado ? 504 : 500).json({
+                erro: tempoEsgotado
+                    ? 'A consulta demorou mais que o esperado. Tente novamente.'
+                    : 'Não foi possível consultar as reservas.'
+            });
         }
         res.json(resultados);
     });
 });
-app.post('/tbl_clientes', (req, res) => {
+
+const cidadesAtendidas = new Set([
+    'maua',
+    'santo andre',
+    'sao bernardo do campo',
+    'diadema',
+    'ribeirao pires',
+    'sao caetano do sul'
+]);
+
+function normalizarTexto(valor) {
+    return String(valor || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, ' ');
+}
+
+function cidadeAtendida(cidadeInformada, cidadeCep) {
+    const cidadeDigitada = normalizarTexto(cidadeInformada);
+    const municipioCep = normalizarTexto(cidadeCep);
+
+    if (cidadeDigitada === 'capuava') {
+        return municipioCep === 'maua' || municipioCep === 'santo andre';
+    }
+
+    const cidadeCanonica = cidadeDigitada === 'sao bernardo'
+        || cidadeDigitada === 'sao bernado'
+        || cidadeDigitada === 'sao bernado do campo'
+        ? 'sao bernardo do campo'
+        : cidadeDigitada === 'sao caetano'
+            ? 'sao caetano do sul'
+            : cidadeDigitada;
+
+    return cidadesAtendidas.has(cidadeCanonica) && cidadeCanonica === municipioCep;
+}
+
+async function validarCepCidade(cep, cidade) {
+    if (!/^\d{8}$/.test(cep)) {
+        return { valido: false, status: 400, erro: 'Informe um CEP válido com 8 números.' };
+    }
+
+    let resposta;
+    try {
+        resposta = await fetch(`https://viacep.com.br/ws/${cep}/json/`, {
+            signal: AbortSignal.timeout(5000)
+        });
+    } catch (erro) {
+        console.error('Não foi possível validar o CEP no ViaCEP:', erro);
+        return {
+            valido: false,
+            status: 503,
+            erro: 'Não foi possível validar seu CEP agora. Tente novamente em instantes.'
+        };
+    }
+
+    if (!resposta.ok) {
+        return {
+            valido: false,
+            status: 503,
+            erro: 'Não foi possível validar seu CEP agora. Tente novamente em instantes.'
+        };
+    }
+
+    let endereco;
+    try {
+        endereco = await resposta.json();
+    } catch (erro) {
+        console.error('Resposta inválida ao validar CEP no ViaCEP:', erro);
+        return {
+            valido: false,
+            status: 503,
+            erro: 'Não foi possível validar seu CEP agora. Tente novamente em instantes.'
+        };
+    }
+    if (endereco.erro || !endereco.localidade || !endereco.uf) {
+        return { valido: false, status: 400, erro: 'CEP não encontrado. Confira os números informados.' };
+    }
+
+    if (endereco.uf !== 'SP' || !cidadeAtendida(cidade, endereco.localidade)) {
+        return {
+            valido: false,
+            status: 400,
+            erro: 'Sentimos muito, mas não podemos te atender devido à distância 😔. Atendemos Mauá, Santo André, Capuava, São Bernardo do Campo, Diadema, Ribeirão Pires e São Caetano do Sul. Confira se a cidade e o CEP estão corretos.'
+        };
+    }
+
+    return { valido: true, cidade: endereco.localidade };
+}
+
+app.post('/tbl_clientes', async (req, res) => {
     let { cliente_nome, telefone, email, endereco, cpf, cidade, cep, id_servico, data_agenda } = req.body;
-    
+
+    cliente_nome = String(cliente_nome || '').trim();
+    email = String(email || '').trim();
+    cidade = String(cidade || '').trim();
+    cep = String(cep || '').replace(/\D/g, '');
+
     if (!cliente_nome || !telefone || !email || !endereco || !cpf || !cidade || !cep || !Number.isInteger(Number(id_servico)) || !data_agenda) {
         return res.status(400).json({ status: 'erro', erro: 'Preencha todos os dados da reserva.' });
     }
+
+    if (!/^[\p{L}][\p{L}\p{M}\s'.-]{1,99}$/u.test(cliente_nome) || cliente_nome.trim().split(/\s+/).length < 2) {
+        return res.status(400).json({ status: 'erro', erro: 'Informe seu nome completo usando pelo menos nome e sobrenome.' });
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return res.status(400).json({ status: 'erro', erro: 'Informe um endereço de e-mail válido.' });
+    }
+
+    const validacaoEndereco = await validarCepCidade(cep, cidade);
+    if (!validacaoEndereco.valido) {
+        return res.status(validacaoEndereco.status).json({ status: 'erro', erro: validacaoEndereco.erro });
+    }
+    cidade = validacaoEndereco.cidade;
 
     // Se a data vier no formato HTML datetime-local ou com 'T' (ex: "2026-08-21T14:00"), 
     // nós substituímos o 'T' por espaço para o MySQL aceitar no tipo DATETIME.
@@ -108,21 +234,6 @@ app.post('/tbl_clientes', (req, res) => {
                 });
             });
         });
-    });
-});
-app.get('/detalhe_agendamento', (req, res) => {
-    const nome = String(req.query.Nome || req.query.nome || '').trim();
-    if (!nome) return res.status(400).json({ erro: 'Informe o nome do cliente.' });
-
-    const sql = `SELECT * FROM mydb.detalhe_agendamento WHERE LOWER(Nome) LIKE LOWER(?)`;
-    const searchValue = `%${nome}%`;
-
-    db.query(sql, [searchValue], (err, resultados) => {
-        if (err) {
-            console.error('Erro detalhado no MySQL:', err);
-            return res.status(500).json({ erro: err.message });
-        }
-        res.json(resultados);
     });
 });
 const porta = Number(process.env.PORT) || 3000;
